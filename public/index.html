@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Weather</title>
+  <style>
+    #inputForm {
+      margin-bottom: 20px;
+    }
+    #resultContainer {
+      display: none;
+    }
+    #resultContainer ul {
+      list-style-type: none;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+  <div id="inputForm">
+    <label for="citiesInput">Enter city names (comma-separated):</label>
+    <input type="text" id="citiesInput">
+    <button id="submitBtn">Get Weather</button>
+  </div>
+
+  <div id="resultContainer">
+    <h2>Weather Results:</h2>
+    <ul id="weatherList"></ul>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('inputForm');
+      const input = document.getElementById('citiesInput');
+      const submitBtn = document.getElementById('submitBtn');
+      const resultContainer = document.getElementById('resultContainer');
+      const weatherList = document.getElementById('weatherList');
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const cities = input.value.split(',').map(city => city.trim());
+
+        const response = await fetch('/weather', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ cities })
+        });
+
+        if (response.ok) {
+          const weatherData = await response.json();
+
+          weatherList.innerHTML = '';
+
+          for (const city in weatherData.weather) {
+            const listItem = document.createElement('li');
+            listItem.textContent = `${city}: ${weatherData.weather[city]}`;
+            weatherList.appendChild(listItem);
+          }
+
+          resultContainer.style.display = 'block';
+        } else {
+          console.error('Failed to fetch weather data');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
